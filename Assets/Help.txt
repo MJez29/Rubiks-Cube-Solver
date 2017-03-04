@@ -1,0 +1,41 @@
+﻿<size=120>SCRAMBLE</size>
+- Scrambles the cube randomly
+- Press the play button to solve
+
+<size=120>RESET</size>
+- Returns the cube to its original solved position
+
+<size=120>RECOLOR</size>
+- Allows you to color the cube
+- Right-click on a face to color that face
+- Use keyboard keys to change the color
+	- W -> <color=White>White</color>
+	- R -> <color=Red>Red</color>
+	- B -> <color=Blue>Blue</color>
+	- O -> <color=Orange>Orange</color>
+	- G -> <color=Green>Green</color>
+	- Y -> <color=Yellow>Yellow</color>
+- Be careful - the solver doesn't check to make sure you entered a valid cube configuration (yet). It will attempt to solve it even though it cannot be solved which yields undefined behaviour.
+- Press the play button to solve
+
+<size=120>SLOW DOWN</size>
+- Slow down how fast the cube rotates
+
+<size=120>BACK</size>
+- Goes back one step in the solution
+
+<size=120>PLAY</size>
+- Start or resume playing the solution
+
+<size=120>PAUSE</size>
+- Pause the solution
+
+<size=120>NEXT</size>
+- Go to the next step in the solution
+
+<size=120>SPEED UP</size>
+- Speed up how fast the cube rotates
+
+<color=Red>Made by Michal Jez</color>
+<color=Blue>v1.1</color>
+<color=Green>March 4, 2017</color>
