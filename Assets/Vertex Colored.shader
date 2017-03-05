@@ -3,7 +3,7 @@
 	}
 	SubShader{
 		Pass{
-		ColorMaterial AmbientAndDiffuse
-	}
+			ColorMaterial AmbientAndDiffuse
+		}
 	}
 }

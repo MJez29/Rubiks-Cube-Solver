@@ -18,6 +18,8 @@ public class CubeColorer : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
+        //If a keyboard key is pressed
+        //Changes the current drawing color
         if (Input.GetKeyDown(KeyCode.W))
             col = Color.white;
         else if (Input.GetKeyDown(KeyCode.R))

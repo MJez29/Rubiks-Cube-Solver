@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using System;
 
+//Controls camera position relative to the cube
+//Allows the cube to be physically rotated around with the mouse and to zoom in and out on the cube
+
 public class CameraController : MonoBehaviour
 {
-    Vector3 mouse;
-
+    //Distance from the camera to the cube
     float len;
 
+    //How fast the cube rotates when dragged by the mouse
     private float rotateSpeed = 500f;
 
     //The transform of the center of the cube
@@ -17,7 +20,6 @@ public class CameraController : MonoBehaviour
     // Use this for initialization
     void Start () {
         len = 10f;
-        mouse = transform.position;
 
         tr = GameObject.Find("Center").transform;
         helpCanvas = GameObject.Find("HelpCanvas");
