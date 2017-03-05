@@ -209,7 +209,6 @@ public class CubeController : MonoBehaviour
     {
         isPaused = !isPaused;
         playPauseButton.GetComponent<Image>().sprite = isPaused ? play : pause;
-        Debug.Log("PLAY/PAUSE " + n++ + " " + isPaused);
 
         nextButton.GetComponent<Button>().interactable = lastButton.GetComponent<Button>().interactable = isPaused;
         
