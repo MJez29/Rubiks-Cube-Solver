@@ -1,8 +1,8 @@
 ﻿### WHAT NEEDS TO BE DONE ###
 
 - Improve UI
-	- Add help button
 	- Show steps in corner
+
 - Improve appearance
 	- Add black outline
 	- Lighting or backdrop
