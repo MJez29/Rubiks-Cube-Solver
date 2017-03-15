@@ -1,0 +1,1 @@
+Fill the 2nd row so that the white face and 2/3 of the adjacent faces are properly colored

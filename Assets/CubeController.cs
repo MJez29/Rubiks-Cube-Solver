@@ -14,6 +14,8 @@ public class CubeController : MonoBehaviour
 
     public bool finishedRotation;
 
+    public GuideController gc;
+
     //private int framesPerRotationIndex = 4;
     //private static int[] framesPerRotationArr = new int[] { 1, 3, 6, 9, 15, 18, 30, 45, 90 };
     //private int framesPerRotation = framesPerRotationArr[4];         //How many frames per rotation of the cube
@@ -50,12 +52,7 @@ public class CubeController : MonoBehaviour
         finishedRotation = true;
 
         ct = GetComponent<CubeTransformer>();
-
-        Debug.Log(playPauseButton == null);
-        Debug.Log(nextButton == null);
-        Debug.Log(lastButton == null);
-        Debug.Log(slowerButton == null);
-        Debug.Log(fasterButton == null);
+        gc = GameObject.Find("Canvas/Guide").GetComponent<GuideController>();
 
         playPauseButton.GetComponent<Button>().interactable = nextButton.GetComponent<Button>().interactable =
             lastButton.GetComponent<Button>().interactable = slowerButton.GetComponent<Button>().interactable =
@@ -69,13 +66,14 @@ public class CubeController : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        Debug.Log("STOP REQUESTED");
         CubeSolver.RequestStop();
 
     }
 
     private IEnumerator ScrambleCube()
     {
+        gc.SetGuideNum(Guides.BLANK);
+
         playPauseButton.GetComponent<Button>().interactable = nextButton.GetComponent<Button>().interactable = 
             lastButton.GetComponent<Button>().interactable = slowerButton.GetComponent<Button>().interactable =
             fasterButton.GetComponent<Button>().interactable = false;
@@ -135,11 +133,13 @@ public class CubeController : MonoBehaviour
         fasterButton.GetComponent<Button>().interactable = slowerButton.GetComponent<Button>().interactable = true;
         playPauseButton.GetComponent<Image>().sprite = play;
 
-        Debug.Log("SOL LEN: " + CubeSolver.solution.Count);
-
-        yield return new WaitUntil(() => CubeSolver.solution.Count > 0);
+        yield return new WaitUntil(() => CubeSolver.solution.Count > 0 && CubeSolver.guides.Count > 0);
 
         int solutionIndex = -1;
+        int guideIndex = 0;
+
+        gc.SetGuideNum(CubeSolver.guides[guideIndex].Item2);
+
         while (true)
         {
             ct.finishedRotation = false;
@@ -151,6 +151,10 @@ public class CubeController : MonoBehaviour
                 {
                     solutionIndex++;
                     ct.Rotate(CubeSolver.solution[solutionIndex]);
+                    if (guideIndex < CubeSolver.guides.Count - 1 && CubeSolver.guides[guideIndex + 1].Item1 == solutionIndex)
+                    {
+                        gc.SetGuideNum(CubeSolver.guides[++guideIndex].Item2);
+                    }
                 }
                 else
                     ct.finishedRotation = true;
@@ -161,6 +165,10 @@ public class CubeController : MonoBehaviour
                 {
                     ct.Rotate(CubeSolver.solution[solutionIndex].Item1, !CubeSolver.solution[solutionIndex].Item2);
                     solutionIndex--;
+                    if (guideIndex > 0 && CubeSolver.guides[guideIndex].Item1 > solutionIndex)
+                    {
+                        gc.SetGuideNum(CubeSolver.guides[--guideIndex].Item2);
+                    }
                 }
                 else
                     ct.finishedRotation = true;
@@ -174,6 +182,8 @@ public class CubeController : MonoBehaviour
 
     private IEnumerator ColorCube()
     {
+        gc.SetGuideNum(Guides.COLORING);
+
         gameObject.AddComponent<CubeColorer>();
 
         //All buttons except play/pause button are disabled
@@ -234,8 +244,7 @@ public class CubeController : MonoBehaviour
     {
         ct.SlowDownRotation();
     }
-
-    //NOT DONE
+    
     public void OnScrambleClick()
     {
         if (!isPaused)
@@ -257,6 +266,12 @@ public class CubeController : MonoBehaviour
         StopAllCoroutines();
         CubeSolver.Reset();
         ct.MakeUnscrambled(true);
+
+        playPauseButton.GetComponent<Button>().interactable = nextButton.GetComponent<Button>().interactable =
+            lastButton.GetComponent<Button>().interactable = slowerButton.GetComponent<Button>().interactable =
+            fasterButton.GetComponent<Button>().interactable = false;
+
+        gc.SetGuideNum(Guides.BLANK);
     }
 
     public void OnRecolorClick()
@@ -266,8 +281,7 @@ public class CubeController : MonoBehaviour
 
         StopAllCoroutines();
         CubeSolver.Reset();
-
-        Debug.Log("Calling Blacken()");
+        
         ct.Blacken();
 
         StartCoroutine(ColorCube());

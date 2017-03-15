@@ -22,36 +22,34 @@ public class CubeTransformer : MonoBehaviour {
 
     public static Color WHITE = Color.white, RED = Color.red, BLUE = Color.blue, ORANGE = new Color(1, 165f / 255f, 0), YELLOW = Color.yellow, BLACK = Color.black, GREEN = Color.green, GRAY = Color.gray;
 
-    GameObject baseBlock;
+    private static GameObject baseBlock;
+
     // Use this for initialization
     void Start()
     {
-        center = GameObject.Find("Center").transform;
-
-        baseBlock = Resources.Load<GameObject>("Block");
+        center = transform;
+        
+        baseBlock = baseBlock ?? Resources.Load<GameObject>("Block");
 
         //Creates all the pivots
         topPivot = new GameObject().transform;
-        topPivot.transform.position = new Vector3(0, 1.05f, 0);
-
-        frontPivot = new GameObject().transform;
-        frontPivot.transform.position = new Vector3(0, 0, -1.05f);
-
-        rightPivot = new GameObject().transform;
-        rightPivot.transform.position = new Vector3(1.05f, 0, 0);
-
-        backPivot = new GameObject().transform;
-        backPivot.transform.position = new Vector3(0, 0, 1.05f);
-
-        leftPivot = new GameObject().transform;
-        leftPivot.transform.position = new Vector3(-1.05f, 0, 0);
-
-        bottomPivot = new GameObject().transform;
-        bottomPivot.transform.position = new Vector3(0, -1.05f, 0);
+        frontPivot = new GameObject("Pivot").transform;
+        rightPivot = new GameObject("Pivot").transform;
+        backPivot = new GameObject("Pivot").transform;
+        leftPivot = new GameObject("Pivot").transform;
+        bottomPivot = new GameObject("Pivot").transform;
 
         //Sets the parent of the pivots to the center of the cube
-        topPivot.transform.parent = frontPivot.transform.parent = rightPivot.transform.parent =
-            backPivot.transform.parent = leftPivot.transform.parent = bottomPivot.transform.parent = center;
+        topPivot.parent = frontPivot.parent = rightPivot.parent =
+            backPivot.parent = leftPivot.parent = bottomPivot.parent = center;
+
+        //Positions all pivots
+        topPivot.localPosition = new Vector3(0, 1.05f, 0);
+        frontPivot.localPosition = new Vector3(0, 0, -1.05f);
+        rightPivot.localPosition = new Vector3(1.05f, 0, 0);
+        backPivot.localPosition = new Vector3(0, 0, 1.05f);
+        leftPivot.localPosition = new Vector3(-1.05f, 0, 0);
+        bottomPivot.localPosition = new Vector3(0, -1.05f, 0);
 
         MakeUnscrambled(true);        
     }
@@ -90,7 +88,7 @@ public class CubeTransformer : MonoBehaviour {
                     switch (i)
                     {
                         case 0:         //Left
-                            blocks[i, j, k].left = color || (j == 1 && k == 1) ? GREEN : GRAY;
+                            blocks[i, j, k].left = color || (j == 1 && k == 1) ? GREEN : blocks[i, j, k].left;
                             blocks[i, j, k].right = BLACK;
 
                             if (firstTime && !(j == 1 && k == 1))
@@ -111,7 +109,7 @@ public class CubeTransformer : MonoBehaviour {
                             break;
                         case 2:         //Right
                             blocks[i, j, k].left = BLACK;
-                            blocks[i, j, k].right = color || (j == 1 && k == 1) ? BLUE : GRAY;
+                            blocks[i, j, k].right = color || (j == 1 && k == 1) ? BLUE : blocks[i, j, k].right;
 
                             if (firstTime && !(j == 1 && k == 1))
                             {
@@ -131,7 +129,7 @@ public class CubeTransformer : MonoBehaviour {
                     {
                         case 0:         //Bottom
                             blocks[i, j, k].top = BLACK;
-                            blocks[i, j, k].bottom = color || (i == 1 && k == 1) ? YELLOW : GRAY;
+                            blocks[i, j, k].bottom = color || (i == 1 && k == 1) ? YELLOW : blocks[i, j, k].bottom;
 
                             if (firstTime && !(i == 1 && k == 1))
                             {
@@ -150,7 +148,7 @@ public class CubeTransformer : MonoBehaviour {
                             blocks[i, j, k].bottom = BLACK;
                             break;
                         case 2:         //Top
-                            blocks[i, j, k].top = color || (i == 1 && k == 1) ? WHITE : GRAY;
+                            blocks[i, j, k].top = color || (i == 1 && k == 1) ? WHITE : blocks[i, j, k].top;
                             blocks[i, j, k].bottom = BLACK;
 
                             if (firstTime && !(i == 1 && k == 1))
@@ -170,7 +168,7 @@ public class CubeTransformer : MonoBehaviour {
                     switch (k)
                     {
                         case 0:         //Front
-                            blocks[i, j, k].front = color || (i == 1 && j == 1) ? RED : GRAY;
+                            blocks[i, j, k].front = color || (i == 1 && j == 1) ? RED : blocks[i, j, k].front;
                             blocks[i, j, k].back = BLACK;
 
                             if (firstTime && !(i == 1 && j == 1))
@@ -191,7 +189,7 @@ public class CubeTransformer : MonoBehaviour {
                             break;
                         case 2:         //Back
                             blocks[i, j, k].front = BLACK;
-                            blocks[i, j, k].back = color || (i == 1 && j == 1) ? ORANGE : GRAY;
+                            blocks[i, j, k].back = color || (i == 1 && j == 1) ? ORANGE : blocks[i, j, k].back;
 
                             if (firstTime && !(i == 1 && j == 1))
                             {
@@ -208,7 +206,7 @@ public class CubeTransformer : MonoBehaviour {
                     }
 
                     ColorFaces(blocks[i, j, k]);
-                    //blocks[i, j, k].go.name = GetName(blocks[i, j, k]);
+                    blocks[i, j, k].go.name = i + "" + j + "" + k;
                 }
             }
         }
@@ -217,11 +215,25 @@ public class CubeTransformer : MonoBehaviour {
             firstTime = false;
     }
 
+    public void SetBlocks(Block[,,] blks)
+    {
+        blocks = blks;
+    }
+
     //---------------------------------------------------- COLORING FUNCTIONS -----------------------------------------
 
     public void Blacken()
     {
-        Debug.Log("Blacken() called");
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    blocks[i, j, k].ColorAllSides(GRAY);
+                }
+            }
+        }
         MakeUnscrambled(false);
     }
 

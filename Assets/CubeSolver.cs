@@ -21,6 +21,7 @@ public class CubeSolver
     public static Col[][,] sides;
 
     public static volatile List<Pair<string, bool>> solution = new List<Pair<string, bool>>(150);
+    public static volatile List<Pair<int, int>> guides = new List<Pair<int, int>>(10);
     public static volatile bool stopSolving;
     public static bool newStep, done;
 
@@ -30,8 +31,6 @@ public class CubeSolver
     //Each element is in the form <CoroutineName, rotateClockwise>
     public static Pair<string, bool>[] Scramble()
     {
-        Debug.Log(new Triplet<Col, Col, Col>(Col.RED, Col.BLUE, Col.GREEN).Contains(Col.RED));
-
         int numScrambles = (int)(40 * Mathf.Sin(Mathf.PI * UnityEngine.Random.value) + 20);
 
         Pair<string, bool>[] moves = new Pair<string, bool>[numScrambles];
@@ -96,6 +95,8 @@ public class CubeSolver
 
         //Erases the previous solution
         solution = new List<Pair<string, bool>>(150);
+
+        guides = new List<Pair<int, int>>(10);
     }
 
     //Requests that the solving thread stop
@@ -169,10 +170,9 @@ public class CubeSolver
             return Col.NULL;
     }
 
-    public static void /*LinkedList<Pair<string, bool>>*/ Solve()
+    public static void Solve()
     {
         sides = new Col[][,] { top, front, right, back, left, bottom };
-        Debug.Log("SOLVE");
 
         //If there already is a solving thread running, it stops it
         if (solvingThread != null && solvingThread.IsAlive)
@@ -189,6 +189,7 @@ public class CubeSolver
     private static void SolveCubeThread()
     {
         solution = new List<Pair<string, bool>>(150);
+        guides = new List<Pair<int, int>>(10);
         if (SolveWhiteFace())
         {
             if (PlaceNonWhiteOrYellowMiddles())
@@ -201,32 +202,31 @@ public class CubeSolver
                         {
                             if (OrientYellowCorners())
                             {
-                                Debug.Log("ENDED NORMALLY");
+                                //Debug.Log("ENDED NORMALLY");
                             }
-                            else
-                                Debug.Log("FORCEFULLY ENDED (if 6)");
+                            /*else
+                                Debug.Log("FORCEFULLY ENDED (if 6)");*/
                         }
-                        else
-                            Debug.Log("FORCEFULLY ENDED (if 5)");
+                        /*else
+                            Debug.Log("FORCEFULLY ENDED (if 5)");*/
                     }
-                    else
-                        Debug.Log("FORCEFULLY ENDED (if 4)");
+                    /*else
+                        Debug.Log("FORCEFULLY ENDED (if 4)");*/
                 }
-                else
-                    Debug.Log("FORCEFULLY ENDED (if 3)");
+                /*else
+                    Debug.Log("FORCEFULLY ENDED (if 3)");*/
             }
-            else
-                Debug.Log("FORCEFULLY ENDED (if 2)");
+            /*else
+                Debug.Log("FORCEFULLY ENDED (if 2)");*/
         }
-        else
-            Debug.Log("FORCEFULLY ENDED (if 1)");
+        /*else
+            Debug.Log("FORCEFULLY ENDED (if 1)");*/
     }
 
     private static bool SolveWhiteFace()
     {
         if (MakeWhiteCross())
         {
-            Debug.Log("CROSS DONE");
             return PlaceWhiteCorners();
         }
         else
@@ -238,6 +238,9 @@ public class CubeSolver
     //Return false if the thread was requested to stop
     private static bool MakeWhiteCross()
     {
+        //Adds guide to guide list
+        guides.Add(new Pair<int, int>(solution.Count, Guides.WHITE_CROSS));
+
         Col[] cols = { Col.RED, Col.BLUE, Col.ORANGE, Col.GREEN };
         Triplet<int, int, int>[] finalPositions = { new Triplet<int, int, int>(1, 2, 0), new Triplet<int, int, int>(2, 2, 1),
                                                     new Triplet<int, int, int>(1, 2, 2), new Triplet<int, int, int>(0, 2, 1) };
@@ -382,6 +385,9 @@ public class CubeSolver
 
     private static bool PlaceWhiteCorners()
     {
+        //Adds guide to guide list
+        guides.Add(new Pair<int, int>(solution.Count, Guides.WHITE_CORNERS));
+
         Col[][,] sides = new Col[][,] { front, right, back, left };
 
         Triplet<int, int, int>[] bottomCorners = { new Triplet<int, int, int>(0, 0, 0), new Triplet<int, int, int>(2, 0, 0),
@@ -445,7 +451,7 @@ public class CubeSolver
                         {
                             if (stopSolving)
                             {
-                                Debug.Log("FORCEFULLY ENDED (while 1)");
+                                //Debug.Log("FORCEFULLY ENDED (while 1)");
                                 return false;
                             }
 
@@ -545,7 +551,7 @@ public class CubeSolver
                     {
                         if (stopSolving)
                         {
-                            Debug.Log("FORCEFULLY ENDED (while 2)");
+                            //Debug.Log("FORCEFULLY ENDED (while 2)");
                             return false;
                         }
                         corner = bottomCorners[++j == bottomCorners.Length ? j = 0 : j];
@@ -606,11 +612,15 @@ public class CubeSolver
             if (WhiteCornersInPlace())
                 break;
         }
+
         return true;
     }
 
     private static bool PlaceNonWhiteOrYellowMiddles()
     {
+        //Adds guide to guide list
+        guides.Add(new Pair<int, int>(solution.Count, Guides.MIDDLE_ROW));
+
         Col[][,] sides = { front, right, back, left };
 
         Triplet<int, int, int>[] bottomMiddles = { new Triplet<int, int, int>(1, 0, 0), new Triplet<int, int, int>(2, 0, 1),
@@ -746,6 +756,9 @@ public class CubeSolver
         //If none of the tops are yellow
         if (!bottomMiddlesYellow[0] && !bottomMiddlesYellow[1] && !bottomMiddlesYellow[2] && !bottomMiddlesYellow[3])
         {
+            //Adds guide to guide list
+            guides.Add(new Pair<int, int>(solution.Count, Guides.YELLOW_DOT));
+
             solution.Add(RotateFrontOrBack(true, true));
             solution.Add(RotateTopOrBottom(false, true));
             solution.Add(RotateRightOrLeft(false, true));
@@ -757,7 +770,6 @@ public class CubeSolver
             bottomMiddlesYellow[1] = bottom[2, 1] == Col.YELLOW;
             bottomMiddlesYellow[2] = bottom[1, 2] == Col.YELLOW;
             bottomMiddlesYellow[3] = bottom[0, 1] == Col.YELLOW;
-            Debug.Log("XXX\nXYX\nXXX");
         }
 
         if (stopSolving)
@@ -767,6 +779,9 @@ public class CubeSolver
         if ((bottomMiddlesYellow[0] && !bottomMiddlesYellow[1] && bottomMiddlesYellow[2] && !bottomMiddlesYellow[3]) ||
                 (!bottomMiddlesYellow[0] && bottomMiddlesYellow[1] && !bottomMiddlesYellow[2] && bottomMiddlesYellow[3]))
         {
+            //Adds guide to guide list
+            guides.Add(new Pair<int, int>(solution.Count, Guides.YELLOW_LINE));
+
             solution.Add(RotateFrontOrBack(true, true));
             solution.Add(RotateTopOrBottom(false, true));
             solution.Add(RotateRightOrLeft(false, true));
@@ -778,13 +793,10 @@ public class CubeSolver
             bottomMiddlesYellow[1] = bottom[2, 1] == Col.YELLOW;
             bottomMiddlesYellow[2] = bottom[1, 2] == Col.YELLOW;
             bottomMiddlesYellow[3] = bottom[0, 1] == Col.YELLOW;
-            Debug.Log("XYX\nXYX\nXYX");
         }
 
         if (stopSolving)
             return false;
-
-        Debug.Log(bottomMiddlesYellow[0] + " " + bottomMiddlesYellow[1] + " " + bottomMiddlesYellow[2] + " " + bottomMiddlesYellow[3]);
 
 
         for (int i = 0; i < bottomMiddlesYellow.Length; i++)
@@ -796,7 +808,8 @@ public class CubeSolver
             {
                 Col[,] side = sides[i == 0 ? 3 : i - 1];
 
-                Debug.Log("XYX\nXXY\nXXX");
+                //Adds guide to guide list
+                guides.Add(new Pair<int, int>(solution.Count, Guides.YELLOW_HALF_CROSS));
 
                 solution.Add(RotateSide(side, true));
                 solution.Add(RotateTopOrBottom(false, true));
@@ -811,7 +824,6 @@ public class CubeSolver
 
         if (!MadeYellowCross())
         {
-            Debug.Log("FAILED TO MAKE YELLOW CROSS");
             return MakeYellowCross();
         }
 
@@ -829,7 +841,7 @@ public class CubeSolver
         {
             if (stopSolving)
             {
-                Debug.Log("FOR 1");
+                //Debug.Log("FOR 1");
                 return false;
             }
 
@@ -843,6 +855,9 @@ public class CubeSolver
             if (oppSide[oppPos2D.Item1, oppPos2D.Item2] == GetColorWithSide(GetSideOppositeOf(GetSideWithColor(side[pos2D.Item1, pos2D.Item2]))) &&
                 rightSide[rightPos2D.Item1, rightPos2D.Item2] != GetColorWithSide(GetSideRightOf(GetSideWithColor(side[pos2D.Item1, pos2D.Item2]))))
             {
+                //Adds guide to guide list
+                guides.Add(new Pair<int, int>(solution.Count, Guides.YELLOW_CROSS_OPPOSITES));
+
                 solution.Add(RotateSide(side, true));
                 solution.Add(RotateSide(bottom, true));
                 solution.Add(RotateSide(side, false));
@@ -869,6 +884,9 @@ public class CubeSolver
             if (leftSide[leftPos2D.Item1, leftPos2D.Item2] == GetColorWithSide(GetSideLeftOf(GetSideWithColor(side[pos2D.Item1, pos2D.Item2]))) &&
                 rightSide[rightPos2D.Item1, rightPos2D.Item2] != GetColorWithSide(GetSideRightOf(GetSideWithColor(side[pos2D.Item1, pos2D.Item2]))))
             {
+                //Adds guide to guide list
+                guides.Add(new Pair<int, int>(solution.Count, Guides.YELLOW_CROSS_ADJACENTS));
+
                 solution.Add(RotateSide(side, true));
                 solution.Add(RotateSide(bottom, true));
                 solution.Add(RotateSide(side, false));
@@ -882,8 +900,6 @@ public class CubeSolver
             }
         }
 
-        Debug.Log(front[1, 0] + "   " + right[0, 1] + "   " + back[1, 0] + "   " + left[0, 1]);
-
         int rotations = 0;
         Pair<string, bool> step = null;
 
@@ -891,7 +907,7 @@ public class CubeSolver
         {
             if (stopSolving)
             {
-                Debug.Log("WHILE 1");
+                //Debug.Log("WHILE 1");
                 return false;
             }
 
@@ -945,10 +961,11 @@ public class CubeSolver
                 inRightPlace |= 1 << i;
         }
 
-        Debug.Log(inRightPlace);
-
         if (inRightPlace == 0)
         {
+            //Adds guide to guide list
+            guides.Add(new Pair<int, int>(solution.Count, Guides.YELLOW_CORNERS_POSITION_ONE));
+
             solution.Add(RotateSide(bottom, true));
             solution.Add(RotateSide(left, true));
             solution.Add(RotateSide(bottom, false));
@@ -972,6 +989,9 @@ public class CubeSolver
 
             Col[,] side = sides[(i + 3) % 4], oppSide = GetSideOppositeOf(side);
 
+            //Adds guide to guide list
+            guides.Add(new Pair<int, int>(solution.Count, Guides.YELLOW_CORNERS_POSITION_ALL));
+
             solution.Add(RotateSide(bottom, true));
             solution.Add(RotateSide(side, true));
             solution.Add(RotateSide(bottom, false));
@@ -989,6 +1009,9 @@ public class CubeSolver
 
     private static bool OrientYellowCorners()
     {
+        //Adds guide to guide list
+        guides.Add(new Pair<int, int>(solution.Count, Guides.ORIENT_YELLOW_CORNERS));
+
         Pair<int, int>[] corners = { new Pair<int, int>(0, 0), new Pair<int, int>(2, 0), new Pair<int, int>(2, 2), new Pair<int, int>(0, 2) };
 
         Col[][,] sides = { front, right, back, left };
@@ -1679,8 +1702,6 @@ public class CubeSolver
             leftStr += "\n";
             bottomStr += "\n";
         }
-
-        Debug.Log(topStr + frontStr + rightStr + backStr + leftStr + bottomStr);
     }
 
     private static void PrintSide(Col[,] side)
@@ -1694,6 +1715,5 @@ public class CubeSolver
             }
             str += "\n";
         }
-        Debug.Log(str);
     }
 }

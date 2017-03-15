@@ -1,0 +1,1 @@
+Reorder the blocks forming the yellow cross so that 2 adjacent sides have the correct color

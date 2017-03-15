@@ -1,0 +1,7 @@
+Right-click to color
+<color=White>W for white</color>
+<color=Red>R for red</color>
+<color=Blue>B for blue</color>
+<color=Orange>O for orange</color>
+<color=Green>G for green</color>
+<color=Yellow>Y for yellow</color>

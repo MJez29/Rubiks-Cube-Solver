@@ -15,7 +15,11 @@ public class CameraController : MonoBehaviour
     //The transform of the center of the cube
     private Transform tr;
 
+    //
     private GameObject helpCanvas;
+
+    //True if the mouse is pressed down in a non-UI area
+    private bool mouseDown;
 
     // Use this for initialization
     void Start () {
@@ -32,7 +36,7 @@ public class CameraController : MonoBehaviour
         {
             //Gets left mouse button input
             //If the mouse is being dragged the cube gets rotated
-            if (Input.GetMouseButton(0))
+            if (mouseDown && Input.GetMouseButton(0))
                 tr.Rotate((Input.GetAxis("Mouse Y") * rotateSpeed * Time.deltaTime), -(Input.GetAxis("Mouse X") * rotateSpeed * Time.deltaTime), 0, Space.World);
         
             //Gets scroll input
@@ -51,8 +55,13 @@ public class CameraController : MonoBehaviour
                     transform.position = norm * 2;
 
                 len = transform.position.magnitude;
+            }
         }
-        
-        }
+    }
+
+    //Sets whether the mouse is down or not
+    public void OnMouseEvent(bool b)
+    {
+        mouseDown = b;
     }
 }

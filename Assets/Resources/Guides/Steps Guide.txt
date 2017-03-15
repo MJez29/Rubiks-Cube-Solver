@@ -1,0 +1,42 @@
+STEP 1
+- White cross
+
+STEP 2
+- White corners
+
+STEP 3
+- 2nd row
+
+STEP 4
+- Yellow dot to yellow cross
+
+STEP 5
+- Yellow line to yellow half cross
+
+STEP 6
+- Yellow half cross to yellow cross
+
+STEP 7
+- Fix yellow cross where 2 colors accross from each other are correctly positioned
+
+STEP 8
+- Position yellow cross where 2 adjacent faces are the correct colors
+
+STEP 9
+- Position one yellow corner
+
+STEP 10
+- Position all yellow corners
+
+STEP 11
+- Orient all corners
+
+DEMO.TXT
+<TOP><Follows order (0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)>
+<FRONT><{W,R,B,O,G,Y,X} - capitalization doesn't matter>
+<RIGHT>
+<BACK>
+<LEFT>
+<BOTTOM>
+<# OF STEPS>
+<{W,R,B,O,G,Y, w, r, b, o, g, y, x} - side to rotate - uppercase(clockwise) - lowercase(counter-clockwise) - x(black, no specific color)>
